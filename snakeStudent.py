@@ -28,14 +28,11 @@ colW = (WIDTH)/numCols
 pygame.display.set_caption("Snake")
 
 #Color constants
-BLACK = (  0,  0,  0)
-WHITE = (255,255,255)
-RED =   (255,  0,  0)
-GREEN = (  0,255,  0)
-BLUE =  (  0,  0,255)
-LTGRAY = (200,200,200)
-LAWN = (170, 215, 81)
-LAWN2 =(162, 209, 73)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED =   (255, 0, 0)
+LAWN =  (170, 215, 81)
+LAWN2 = (162, 209, 73)
 
 #load & size images
 appleImg = pygame.transform.scale(pygame.image.load("snakeGraphics/apple.png").convert_alpha(),(colW, rowH))
@@ -53,7 +50,6 @@ tailLeft = pygame.transform.scale(pygame.image.load("snakeGraphics/tail_left.png
 tailRight = pygame.transform.scale(pygame.image.load("snakeGraphics/tail_right.png").convert_alpha(),(colW, rowH))
 
 #body- 6 options
-
 bodyBL = pygame.transform.scale(pygame.image.load("snakeGraphics/body_BL.png").convert_alpha(),(colW, rowH))
 bodyBR = pygame.transform.scale(pygame.image.load("snakeGraphics/body_BR.png").convert_alpha(),(colW, rowH))
 bodyTL = pygame.transform.scale(pygame.image.load("snakeGraphics/body_TL.png").convert_alpha(),(colW, rowH))
@@ -63,7 +59,6 @@ bodyVert = pygame.transform.scale(pygame.image.load("snakeGraphics/body_vertical
 
 #load sound effects
 appleSound = pygame.mixer.Sound("apple.wav")
-
 clock = pygame.time.Clock()
 
 def subtractCells(loc1, loc2):
@@ -71,7 +66,6 @@ def subtractCells(loc1, loc2):
     returns the difference between two [row,col] locations as a list
     '''
     return [loc1[0] - loc2[0], loc1[1] - loc2[1]]
-
 
 
 def addCells(loc1, loc2):
@@ -98,11 +92,25 @@ def drawSnake(snake, headDirection):
     '''
     blits all parts of the snake in the view
     '''
-    for i in snake:
-        #surface.blit(pygame.Rect((i[1] * colW, i[0] * rowH, colW, rowH)), (i[1] * colW, i[0] * rowH))
-        pygame.draw.rect(surface, RED, (i[1] * colW, i[0] * rowH, colW, rowH))
+    UP = [-1, 0]
+    DOWN = [1, 0]
+    LEFT = [0, -1]
+    RIGHT = [0, 1]
+    tail = snake[1:]
+
     #head
-    pygame.draw.rect(surface, BLACK, (snake[0][1] * colW, snake[0][0] * rowH, colW, rowH))
+    if headDirection == UP:
+        surface.blit(headUp, (snake[0][1] * colW, snake[0][0] * rowH))
+    elif headDirection == DOWN:
+        surface.blit(headDown, (snake[0][1] * colW, snake[0][0] * rowH))
+    elif headDirection == LEFT:
+        surface.blit(headLeft, (snake[0][1] * colW, snake[0][0] * rowH))
+    elif headDirection == RIGHT:
+        surface.blit(headRight, (snake[0][1] * colW, snake[0][0] * rowH))
+
+    #Body: WIP
+    for i in snake[1:]:
+        pygame.draw.rect(surface, RED, (i[1] * colW, i[0] * rowH, colW, rowH))
 
     #tail if snake length>1
 
@@ -136,9 +144,8 @@ def drawScreen(gameOver, foodLoc, snake, headDirection):
     surface.blit(appleImg, (foodLoc[1] * colW, foodLoc[0] * rowH))
 
     if gameOver:
-        showMessage("Game Over", 96, "Consolas", WIDTH/2, HEIGHT/2, BLACK)
-
-
+        showMessage("Game Over", 96, "Consolas", WIDTH/2, HEIGHT/2, BLACK, WHITE)
+        showMessage("Total Length: " + str(len(snake)), 48, "Consolas", WIDTH/2, HEIGHT/2 + 70, BLACK, WHITE)
 
 def placeFood(snake):
     '''
@@ -190,15 +197,10 @@ def main():
     LEFT = [0, -1]
     RIGHT = [0, 1]
 
-    #use for testing
-    snake =[
-        [5,10],
-        [5,9],
-        [5,8],
-        [4,8],
-        [3,8],
-        [3,9],
-        [2,9]
+    snake = [
+        [10, 10],
+        [10, 9],
+        [10, 8]
     ]
 
     foodLocation = placeFood(snake)
@@ -211,15 +213,14 @@ def main():
                 sys.exit()
 
             if event.type == pygame.KEYDOWN and not gameOver:
-                if event.key == pygame.K_UP and currentDirection != DOWN:
+                if currentDirection != DOWN and event.key == pygame.K_UP:
                     currentDirection = UP
-                elif event.key == pygame.K_DOWN and currentDirection != UP:
+                elif currentDirection != UP and event.key == pygame.K_DOWN:
                     currentDirection = DOWN
-                elif event.key == pygame.K_LEFT and currentDirection != RIGHT:
+                elif currentDirection != RIGHT and event.key == pygame.K_LEFT:
                     currentDirection = LEFT
-                elif event.key == pygame.K_RIGHT and currentDirection != LEFT:
+                elif currentDirection != LEFT and event.key == pygame.K_RIGHT:
                     currentDirection = RIGHT
-
 
         surface.fill(LAWN)
         drawScreen(gameOver, foodLocation, snake, currentDirection)
@@ -227,4 +228,5 @@ def main():
 
         pygame.display.update()
         clock.tick(10)
+
 main()
