@@ -6,16 +6,18 @@ Simple snake game in pygame
 """
 
 import pygame, sys,random
+from pygame import mixer
 
 pygame.init()
+mixer.init()
 
 #board size
 numRows = 20
 numCols = 20
 
 #Set up drawing surface
-WIDTH = 650
-HEIGHT = 650
+WIDTH = 640
+HEIGHT = WIDTH
 size=(WIDTH, HEIGHT)
 surface = pygame.display.set_mode(size)
 
@@ -58,6 +60,9 @@ bodyTL = pygame.transform.scale(pygame.image.load("snakeGraphics/body_TL.png").c
 bodyTR = pygame.transform.scale(pygame.image.load("snakeGraphics/body_TR.png").convert_alpha(),(colW, rowH))
 bodyHorz = pygame.transform.scale(pygame.image.load("snakeGraphics/body_horizontal.png").convert_alpha(),(colW, rowH))
 bodyVert = pygame.transform.scale(pygame.image.load("snakeGraphics/body_vertical.png").convert_alpha(),(colW, rowH))
+
+#load sound effects
+appleSound = pygame.mixer.Sound("apple.wav")
 
 clock = pygame.time.Clock()
 
@@ -125,10 +130,14 @@ def drawScreen(gameOver, foodLoc, snake, headDirection):
         x = 0
         y += rowH
 
+    drawSnake(snake, headDirection)
+
     #draw food
     surface.blit(appleImg, (foodLoc[1] * colW, foodLoc[0] * rowH))
 
-    drawSnake(snake, headDirection)
+    if gameOver:
+        showMessage("Game Over", 96, "Consolas", WIDTH/2, HEIGHT/2, BLACK)
+
 
 
 def placeFood(snake):
@@ -151,6 +160,20 @@ def moveSnake(snake,direction,foodLocation):
     - foodLocation (which may/may not change)
     '''
     head = snake[0]
+
+    if head in snake[1:]:
+        return True, foodLocation
+
+    if head[0] < 0 or head[0] >= numRows or head[1] < 0 or head[1] >= numCols:
+        return True, foodLocation
+
+    if foodLocation == head:
+        snake.insert(0, head)
+        foodLocation = placeFood(snake)
+        appleSound.play()
+        pygame.mixer.music.stop()
+
+
     newhead = addCells(head, direction)
     snake.insert(0, newhead)
     snake.pop()
@@ -187,14 +210,14 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+            if event.type == pygame.KEYDOWN and not gameOver:
+                if event.key == pygame.K_UP and currentDirection != DOWN:
                     currentDirection = UP
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN and currentDirection != UP:
                     currentDirection = DOWN
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_LEFT and currentDirection != RIGHT:
                     currentDirection = LEFT
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT and currentDirection != LEFT:
                     currentDirection = RIGHT
 
 
