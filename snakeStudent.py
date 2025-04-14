@@ -12,11 +12,11 @@ pygame.init()
 mixer.init()
 
 #board size
-numRows = 20
-numCols = 20
+numRows = 15
+numCols = 15
 
 #Set up drawing surface
-WIDTH = 640
+WIDTH = 660
 HEIGHT = WIDTH
 size=(WIDTH, HEIGHT)
 surface = pygame.display.set_mode(size)
