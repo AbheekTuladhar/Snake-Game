@@ -5,18 +5,31 @@ Snake Game
 Simple snake game in pygame
 """
 
-import pygame, sys, random
+import pygame, sys, random, turtle
 from pygame import mixer
+
+def askColumnRows():
+    sc = turtle.Screen()
+    sc.setup(1, 1)
+
+    while True:
+        try:
+            rows = int(turtle.textinput("Rows", "How many rows do you want?"))
+            columns = int(turtle.textinput("Columns", "How many columns do you want?"))
+            break
+        except ValueError:
+            continue
+
+    return rows, columns
+
+#board size
+numRows, numCols = askColumnRows()
 
 pygame.init()
 mixer.init()
 
-#board size
-numRows = 15
-numCols = 15
-
-#Set up drawing surface
-WIDTH = 660
+# Set up drawing surface
+WIDTH = 700
 HEIGHT = WIDTH
 size=(WIDTH, HEIGHT)
 surface = pygame.display.set_mode(size)
